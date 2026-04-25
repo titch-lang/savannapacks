@@ -206,12 +206,15 @@ function renderShopGrid(filterCat = 'all', sortBy = 'default') {
 function productCardHTML(p) {
   const stockClass = p.stock === 0 ? 'out-stock' : p.stock <= 5 ? 'low-stock' : 'in-stock';
   const stockLabel = p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? `Only ${p.stock} left` : 'In Stock';
-  const imgStyle = p.image ? `background: url('${p.image}') center/cover; font-size:0` : '';
+
+  const imgContent = p.image
+    ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;display:block"/>`
+    : `<div class="no-img-placeholder"><i class="fas fa-image"></i><span>No image</span></div>`;
 
   return `
     <article class="product-card" onclick="openQuickView('${p.id}')">
-      <div class="product-img" style="${imgStyle}">
-        ${!p.image ? `<span>${p.emoji || '🪵'}</span>` : ''}
+      <div class="product-img" style="padding:0;overflow:hidden">
+        ${imgContent}
         ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
         <span class="stock-badge ${stockClass}">${stockLabel}</span>
       </div>
@@ -237,9 +240,13 @@ function openQuickView(productId) {
   const stockClass = p.stock === 0 ? 'out-stock' : p.stock <= 5 ? 'low-stock' : 'in-stock';
   const stockLabel = p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? `Only ${p.stock} left` : 'In Stock';
 
+  const imgContent = p.image
+    ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md)"/>`
+    : `<div class="no-img-placeholder large"><i class="fas fa-image"></i><span>No image</span></div>`;
+
   document.getElementById('quickViewContent').innerHTML = `
-    <div class="product-detail-img" style="${p.image ? `background: url('${p.image}') center/cover; font-size:0` : ''}">
-      ${!p.image ? `<span style="font-size:5rem">${p.emoji || '🪵'}</span>` : ''}
+    <div class="product-detail-img" style="padding:0;overflow:hidden">
+      ${imgContent}
     </div>
     <div class="product-detail-info">
       <span class="section-label">${p.category.toUpperCase()}</span>
@@ -334,9 +341,12 @@ function renderCartItems() {
   container.innerHTML = cart.map(item => {
     const p = products.find(x => x.id === item.id);
     if (!p) return '';
+    const thumbContent = p.image
+      ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>`
+      : `<div style="width:100%;height:100%;background:var(--beige);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="fas fa-image" style="color:var(--text-muted);font-size:1.2rem"></i></div>`;
     return `
       <div class="cart-item">
-        <div class="cart-item-icon">${p.emoji || '🪵'}</div>
+        <div class="cart-item-icon" style="font-size:0;width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0">${thumbContent}</div>
         <div class="cart-item-info">
           <h4>${p.name}</h4>
           <p class="cart-item-price">KSh ${(p.price * item.qty).toLocaleString()}</p>
@@ -668,9 +678,13 @@ function renderAdminProducts() {
     return;
   }
 
-  container.innerHTML = products.map(p => `
+  container.innerHTML = products.map(p => {
+    const thumb = p.image
+      ? `<img src="${p.image}" alt="${p.name}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;display:block"/>`
+      : `<div style="width:52px;height:52px;background:var(--beige);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="fas fa-image" style="color:var(--text-muted)"></i></div>`;
+    return `
     <div class="admin-product-row">
-      <div class="admin-product-icon">${p.emoji || '🪵'}</div>
+      <div class="admin-product-icon" style="font-size:0">${thumb}</div>
       <div class="admin-product-info">
         <h4>${p.name} <span style="color:var(--text-muted);font-size:0.8rem">· ${p.category}</span></h4>
         <p>KSh ${p.price.toLocaleString()} · Stock: ${p.stock} · ${p.badge || 'No badge'}</p>
@@ -680,7 +694,76 @@ function renderAdminProducts() {
         <button class="btn-delete" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
       </div>
     </div>
-  `).join('');
+  `}).join('');
+}
+
+// ===== IMAGE UPLOAD HANDLER =====
+function handleImageUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Warn if file is very large
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Image is large. Consider using a smaller file for better performance.', '');
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const base64 = e.target.result;
+    document.getElementById('pImage').value = base64;
+
+    const preview = document.getElementById('imagePreview');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const area = document.getElementById('imageUploadArea');
+
+    preview.src = base64;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    area.classList.add('has-image');
+
+    // Add "click to change" hint
+    let hint = area.querySelector('.upload-change-hint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'upload-change-hint';
+      hint.textContent = 'Click to change image';
+      area.appendChild(hint);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetImageUpload() {
+  document.getElementById('pImage').value = '';
+  document.getElementById('pImageFile').value = '';
+  const preview = document.getElementById('imagePreview');
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const area = document.getElementById('imageUploadArea');
+  preview.src = '';
+  preview.style.display = 'none';
+  placeholder.style.display = 'block';
+  area.classList.remove('has-image');
+  const hint = area.querySelector('.upload-change-hint');
+  if (hint) hint.remove();
+}
+
+function setImagePreviewFromSaved(src) {
+  if (!src) { resetImageUpload(); return; }
+  document.getElementById('pImage').value = src;
+  const preview = document.getElementById('imagePreview');
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const area = document.getElementById('imageUploadArea');
+  preview.src = src;
+  preview.style.display = 'block';
+  placeholder.style.display = 'none';
+  area.classList.add('has-image');
+  let hint = area.querySelector('.upload-change-hint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.className = 'upload-change-hint';
+    hint.textContent = 'Click to change image';
+    area.appendChild(hint);
+  }
 }
 
 function openProductForm() {
@@ -692,8 +775,7 @@ function openProductForm() {
   document.getElementById('pCategory').value = 'medium';
   document.getElementById('pStock').value = '';
   document.getElementById('pDesc').value = '';
-  document.getElementById('pImage').value = '';
-  document.getElementById('pEmoji').value = '';
+  resetImageUpload();
   document.getElementById('productFormPanel').style.display = 'block';
   document.getElementById('productFormPanel').scrollIntoView({ behavior: 'smooth' });
 }
@@ -709,8 +791,7 @@ function editProduct(productId) {
   document.getElementById('pCategory').value = p.category;
   document.getElementById('pStock').value = p.stock;
   document.getElementById('pDesc').value = p.description;
-  document.getElementById('pImage').value = p.image || '';
-  document.getElementById('pEmoji').value = p.emoji || '';
+  setImagePreviewFromSaved(p.image || '');
   document.getElementById('productFormPanel').style.display = 'block';
   document.getElementById('productFormPanel').scrollIntoView({ behavior: 'smooth' });
 }
@@ -728,18 +809,17 @@ function saveProduct(e) {
   const stock = parseInt(document.getElementById('pStock').value);
   const description = document.getElementById('pDesc').value.trim();
   const image = document.getElementById('pImage').value.trim();
-  const emoji = document.getElementById('pEmoji').value.trim() || '🪵';
 
   if (editingProductId) {
     const idx = products.findIndex(p => p.id === editingProductId);
     if (idx !== -1) {
-      products[idx] = { ...products[idx], name, price, category, stock, description, image, emoji };
+      products[idx] = { ...products[idx], name, price, category, stock, description, image };
     }
     showToast('Product updated!', 'success');
   } else {
     const newProduct = {
       id: 'p' + Date.now(),
-      name, price, category, stock, description, image, emoji,
+      name, price, category, stock, description, image,
       badge: '', features: []
     };
     products.push(newProduct);
