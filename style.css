@@ -1141,7 +1141,63 @@ textarea { resize: vertical; min-height: 80px; }
   .testimonials-track { grid-template-columns: 1fr; }
 }
 
-/* ===== WOOD TEXTURE ACCENT ===== */
+/* ===== IMAGE UPLOAD ===== */
+.image-upload-area {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--light-beige);
+  position: relative;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+}
+.image-upload-area:hover {
+  border-color: var(--brown);
+  background: var(--beige);
+}
+.image-upload-area.has-image {
+  padding: 8px;
+  border-style: solid;
+  border-color: var(--brown);
+}
+.upload-placeholder i {
+  font-size: 2.2rem;
+  color: var(--mid-brown);
+  margin-bottom: 10px;
+  display: block;
+}
+.upload-placeholder p {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.upload-placeholder span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.image-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+.upload-change-hint {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.85);
+  padding: 2px 8px;
+  border-radius: 50px;
+}
 .wood-accent {
   background-image: repeating-linear-gradient(
     90deg,
@@ -1151,3 +1207,19 @@ textarea { resize: vertical; min-height: 80px; }
     rgba(139,74,43,0.03) 42px
   );
 }
+
+/* ===== NO IMAGE PLACEHOLDER ===== */
+.no-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--beige);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+.no-img-placeholder i { font-size: 2rem; opacity: 0.5; }
+.no-img-placeholder span { font-size: 0.75rem; opacity: 0.6; }
+.no-img-placeholder.large i { font-size: 3rem; }
