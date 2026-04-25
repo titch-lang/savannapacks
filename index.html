@@ -408,7 +408,7 @@
         <div class="contact-details">
           <div class="cdetail"><i class="fas fa-map-marker-alt"></i><div><strong>Location</strong><span>Nairobi, Kenya</span></div></div>
           <div class="cdetail"><i class="fas fa-envelope"></i><div><strong>Email</strong><span>hello@savannahpacks.co.ke</span></div></div>
-          <div class="cdetail"><i class="fab fa-whatsapp"></i><div><strong>WhatsApp</strong><span>+254 700 000 000</span></div></div>
+          <div class="cdetail"><i class="fab fa-whatsapp"></i><div><strong>WhatsApp</strong><span>+254 710 674 674</span></div></div>
           <div class="cdetail"><i class="fas fa-clock"></i><div><strong>Hours</strong><span>Mon–Sat, 8am–6pm EAT</span></div></div>
         </div>
         <div class="social-links">
@@ -486,10 +486,17 @@
             </div>
             <label>Description</label>
             <textarea id="pDesc" rows="3" required></textarea>
-            <label>Image URL (optional)</label>
-            <input type="text" id="pImage" placeholder="https://..."/>
-            <label>Emoji Icon</label>
-            <input type="text" id="pEmoji" placeholder="🪵"/>
+            <label>Product Image</label>
+            <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('pImageFile').click()">
+              <input type="file" id="pImageFile" accept="image/*" style="display:none" onchange="handleImageUpload(this)"/>
+              <div class="upload-placeholder" id="uploadPlaceholder">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload from your laptop</p>
+                <span>JPG, PNG, WEBP supported</span>
+              </div>
+              <img id="imagePreview" src="" alt="Preview" class="image-preview" style="display:none"/>
+            </div>
+            <input type="hidden" id="pImage"/>
             <div class="form-actions">
               <button type="submit" class="btn-primary">Save Product</button>
               <button type="button" class="btn-ghost" onclick="cancelProductForm()">Cancel</button>
@@ -550,7 +557,7 @@
         <h4>Contact</h4>
         <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
         <p><i class="fas fa-envelope"></i> hello@savannahpacks.co.ke</p>
-        <p><i class="fab fa-whatsapp"></i> +254 700 000 000</p>
+        <p><i class="fab fa-whatsapp"></i> +254 710 674 674</p>
       </div>
     </div>
     <div class="footer-bottom">
